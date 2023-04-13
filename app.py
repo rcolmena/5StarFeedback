@@ -10,7 +10,7 @@ import os
 import warnings
 warnings.filterwarnings("ignore")
 
-MONGODB_URI = os.environ.get('MONGODB_URI')
+MONGODB_URI = os.environ['MONGODB_URI']
 
 con = MongoClient(MONGODB_URI)
 db = con.FiveStarFeedback
