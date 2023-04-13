@@ -5,9 +5,12 @@ import base64
 from datetime import datetime, timedelta
 import re
 from back.main import data_processing
+import os
 
 import warnings
 warnings.filterwarnings("ignore")
+
+MONGODB_URI = os.getenv('MONGODB_URI')
 
 con = MongoClient(MONGODB_URI)
 db = con.FiveStarFeedback
