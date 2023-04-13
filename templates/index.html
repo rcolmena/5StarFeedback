@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> 5StarFeedback </title>
+    <link rel="icon" type="image/x-icon" href="../static/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/styles.css" />
+    <style type="text/css" media="print"> .flip-card-back { display:none; } </style>
+  </head>
+
+  <body id="body">
+    <main>
+      <section id="glass" class="glass">
+
+        <div class="cards">
+          <div class="titleText">
+            <h2><b> {{ nombre_restaurante }} </b></h2>
+          </div>
+          <div class="titleBut">
+            <button class="button3" type="button" onclick="window.location.href='{{ url_for('busqueda') }}'"> <i class="fa-solid fa-magnifying-glass" style="color: #ffffff;"></i> </button>
+            <button class="button3" onclick="window.print()"> <i class="fa-solid fa-file-arrow-down" style="color: #ffffff;"></i> </button>
+          </div>
+        </div>
+
+        <div class="cards">
+
+          <div class="cardPunt">
+            <div class="container">
+              <h3><b>Puntuación</b></h3>
+              <h1> {{ puntuacion }} </h1>
+            </div>
+          </div>
+
+
+          <div class="cardPos">
+            <div class="container">
+              <h4><b>Positivo</b></h4>
+              <p> {{ resumen_positivo }} </p>
+            </div>
+          </div>
+  
+          <div class="cardNeg">
+            <div class="container">
+              <h4><b>Negativo</b></h4>
+              <p> {{ resumen_negativo }} </p>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="cards">
+  
+          <div class="flip-card">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <h6><b>Comida</b></h6>
+                <h5> {{ punt_comida }} </h5>
+                <p>&nbsp;</p>
+                <img src="data:image/png;base64,{{wc_comida}}">
+              </div>
+              <div class="flip-card-back">
+                <h6><b>Recomendaciones:</b></h6>
+                <ul>
+                  <li> {{ rec0 }} </li>
+                  <li> {{ rec1 }} </li>
+                  <li> {{ rec2 }} </li>
+                  <li> {{ rec3 }} </li>
+                  <li> {{ rec4 }} </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="flip-card">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <h6><b>Servicio</b></h6>
+                <h5> {{ punt_servicio }} </h5>
+                <p>&nbsp;</p>
+                <img src="data:image/png;base64,{{wc_servicio}}">
+              </div>
+              <div class="flip-card-back">
+                <h6><b>Recomendaciones:</b></h6>
+                <ul>
+                  <li> {{ rec5 }} </li>
+                  <li> {{ rec6 }} </li>
+                  <li> {{ rec7 }} </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="flip-card">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <h6><b>Precio</b></h6>
+                <h5> {{ punt_precio }} </h5>
+                <p>&nbsp;</p>
+                <img src="data:image/png;base64,{{wc_precio}}">
+              </div>
+              <div class="flip-card-back">
+                <h6><b>Recomendaciones:</b></h6>
+                <ul>
+                  <li> {{ rec8 }} </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="flip-card">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <h6><b>Limpieza</b></h6>
+                <h5> {{ punt_limpieza }} </h5>
+                <p>&nbsp;</p>
+                <img src="data:image/png;base64,{{wc_limpieza}}">
+              </div>
+              <div class="flip-card-back">
+                <h6><b>Recomendaciones:</b></h6>
+                <ul>
+                  <li> {{ rec9 }} </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="flip-card">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <h6><b>Ambiente</b></h6>
+                <h5> {{ punt_ambiente }} </h5>
+                <p>&nbsp;</p>
+                <img src="data:image/png;base64,{{wc_ambiente}}">
+              </div>
+              <div class="flip-card-back">
+                <h6><b>Recomendaciones:</b></h6>
+                <ul>
+                  <li> {{ rec10 }} </li>
+                  <li> {{ rec11 }} </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+    <div class="circle1"></div>
+    <div class="circle2"></div>
+  </body>
+</html>
