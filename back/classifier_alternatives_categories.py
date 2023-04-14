@@ -1,5 +1,5 @@
 # CATEGORY CLASSIFIER (MODELS) =========================================================================
-
+# Script de Python dedicado a la comparación de las tres alternativas para la clasificación en categorías
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer, TfidfTransformer
@@ -9,9 +9,9 @@ from sklearn.pipeline import Pipeline
 
 # MODELS COMPARISON ====================================================================================
 
-df = pd.read_csv('reviews_classifier.csv', header = 0, index_col = 0)
+df = pd.read_csv('reviews_classifier.csv', header=0, index_col=0)
 
-df.reset_index(drop = True)
+df.reset_index(drop=True)
 
 my_tags = ['comida', 'servicio', 'precio', 'ambiente', 'limpieza']
 

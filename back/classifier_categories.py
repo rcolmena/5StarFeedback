@@ -1,3 +1,5 @@
+# Script de Python correspondiente al entrenamiento del modelo SVM para clasificación en categorías
+
 import pandas as pd
 import numpy as np
 import re
@@ -104,10 +106,12 @@ print(pd.DataFrame(confusion_matrix(y_true=y_test, y_pred=predicciones_test),
              columns = ['comida', 'precio', 'servicio', 'ambiente', 'limpieza'],
              index = ['comida', 'precio', 'servicio', 'ambiente', 'limpieza']))
 
+# Se guarda la matriz tf-idf
 tfidfFile = "tfidf.pkl"
 with open(tfidfFile, 'wb') as file:
     pickle.dump(tfidf_vectorizador, file)
 
+# Se guarda el modelo
 classifierFile = "classifier.pkl"
 with open(classifierFile, 'wb') as file:
     pickle.dump(modelo_final, file)

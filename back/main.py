@@ -1,3 +1,7 @@
+# Script de Python que contiene la función principal que se llama desde la app de Flask para realizar el análisis de los
+# datos una vez el usuario introduce el nombre de un restaurante.
+
+# Importación de librerías y dependencias
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -21,7 +25,14 @@ from datetime import datetime
 # TRIPADVISOR
 
 def reviewScraperTripAdvisor(restaurant_name):
+    '''
+    Función para el scraping en TripAdvisor
+    :param restaurant_name: nombre del restaurante introducido por el usuario
+    :return: df: DataFrame con las reseñas scrapeadas
+    '''
 
+
+    # El origen del scraper será en este caso la página principal de restaurantes de TripAdvisor
     url_ta = 'https://www.tripadvisor.es/Restaurants'
     origin = 'TripAdvisor'
 
@@ -58,8 +69,10 @@ def reviewScraperTripAdvisor(restaurant_name):
 
     time.sleep(2)
 
+    # Se obtiene el link del restaurante en concreto tras realizar la búsqueda
     link = search.get_attribute('href')
 
+    # Se accede a la página
     driver.get(link)
 
     # SCRAPER ---------------------------------------------------------------------------------------------
@@ -120,7 +133,13 @@ def reviewScraperTripAdvisor(restaurant_name):
 # GOOGLE MAPS
 
 def reviewScraperGoogle(restaurant_name):
+    '''
+    Función para el scraping en Google Maps
+    :param restaurant_name: nombre del restaurante introducido por el usuario
+    :return: df: DataFrame con las reseñas scrapeadas
+    '''
 
+    # El origen del scraper será en este caso la página principal de Google Maps
     url_g = 'https://www.google.es/maps/'
     origin = 'Google Maps'
 
@@ -199,7 +218,7 @@ def reviewScraperGoogle(restaurant_name):
 
     # FIN DEL SCROLL ---------------------------------------------------------------------------------------------------
 
-    # Botón de "Más"
+    # Botón de "Más" (solo para las reseñas largas)
     button = driver.find_elements(By.TAG_NAME, 'button')
 
     for m in button:
@@ -227,10 +246,14 @@ def reviewScraperGoogle(restaurant_name):
     return df
 
 
-
 # 2) CLEANER AND TOKENIZER =============================================================================================
 
 def cleaner_tokenizer(df):
+    '''
+    Función para la limpieza del texto
+    :param df: DataFrame de las reseñas scrapeadas
+    :return: df: DatFrame con las reseñas tokenizadas en frases y su correspondiente información
+    '''
 
     # Se eliminan las reseñas que no tengan texto
     df = df.dropna().reset_index(drop=True)
@@ -266,6 +289,11 @@ def cleaner_tokenizer(df):
 # 3) CATEGORIZATION ====================================================================================================
 
 def categorization(df):
+    '''
+    Función para la clasificación de las reseñas
+    :param df: DataFrame con las reseñas categorizadas
+    :return: df: mismo DataFrame añadiendo la columna Category, con la categoría de cada frase
+    '''
 
     # Se carga el modelo de categorización
     tfidfFile = "back/tfidf.pkl"
@@ -290,10 +318,17 @@ def categorization(df):
 # 4) SENTIMENT ANALYSIS ================================================================================================
 
 def sentiment(cat_df):
+    '''
+    Función para el análisis de sentimiento
+    :param cat_df: DataFrame categorizado
+    :return: cat_df: DataFrame categorizado añadiendo la columna con el sentimiento de cada frase
+    '''
 
+    # Se carga el modelo preentrenado de NLP Town
     tokenizer = AutoTokenizer.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
     model = AutoModelForSequenceClassification.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
 
+    # Se aplica el modelo a las frases de las reseñas obtenidas
     def get_sentiment(review):
         tokens = tokenizer.encode(review, return_tensors='pt')
         result = model(tokens)
@@ -307,6 +342,11 @@ def sentiment(cat_df):
 # 5) SUMMARIZING =======================================================================================================
 
 def summarize(sent_df):
+    '''
+    Función para el resumen de las reseñas
+    :param sent_df: DataFrame con el sentimiento de las frases
+    :return: summary(str): resumen de las reseñas que entran a la función
+    '''
 
     text = ' '.join(sent_df['Review'])
 
@@ -323,6 +363,7 @@ def summarize(sent_df):
 
     word_frequencies = {}
 
+    # Cálculo de la importancia de las palabras en función de su frecuencia
     for word in nltk.word_tokenize(formatted_text):
         if word not in stopwords:
             if word not in word_frequencies.keys():
@@ -344,7 +385,7 @@ def summarize(sent_df):
                     else:
                         sentence_scores[sent] += word_frequencies[word]
 
-    # Se seleccionan dos frases
+    # Se selecciona la frase considerada más relevante
     summary_sentences = heapq.nlargest(1, sentence_scores, key=sentence_scores.get)
 
     summary = ' '.join(summary_sentences)
@@ -355,20 +396,29 @@ def summarize(sent_df):
 # 6) WORDCLOUD =========================================================================================================
 
 def wordcloud(df):
+    '''
+    Función para la creación de los gráficos wordcloud
+    :param df: DataFrame con todas las frases
+    :return: wc(str): cadena de texto equivalente a la imagen del wordcloud en base64
+    '''
 
+    # Se carga el modelo de Spacy para aplicar la técnica POS Tagging
     nlp = spacy.load('es_core_news_md')
 
     text = ' '.join(df['Review'])
     document = nlp(text)
 
+    # Se extraen los adjetivos del texto
     adjs = []
     for token in document:
         if token.pos_ == 'ADJ':
             adjs.append(token.text)
 
+    # Se carga el modelo de análisis de sentimiento para analizar los adjetivos
     tokenizer = AutoTokenizer.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
     model = AutoModelForSequenceClassification.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
 
+    # Se aplica el modelo de análisis de sentimiento a los adjetivos encontrados
     def sentiment_score(review):
         tokens = tokenizer.encode(review, return_tensors='pt')
         result = model(tokens)
@@ -382,6 +432,7 @@ def wordcloud(df):
 
     text = ' '.join(df_adj['Adjetivo'])
 
+    # Para aplciar el código de color al wordcloud en función del sentimiento obtenido
     class SimpleGroupedColorFunc(object):
 
         def __init__(self, color_to_words, default_color):
@@ -414,9 +465,11 @@ def wordcloud(df):
     plt.imshow(wc, interpolation="bilinear")
     plt.axis("off")
 
+    # Se guarda la imagen del wordcloud
     path = f"wordcloud_{(df['Category'].values[0]).lower()}.png"
     wc.to_file(path)
 
+    # Se genera un string en base64 a partir de la imagen para poder almacenar los gráficos en la base de datos
     with open(f"wordcloud_{(df['Category'].values[0]).lower()}.png", "rb") as imageFile:
         wc = base64.b64encode(imageFile.read())
 
@@ -426,6 +479,12 @@ def wordcloud(df):
 # 7) RECOMMENDATIONS ===================================================================================================
 
 def recommendations(punt, sent_df):
+    '''
+    Función para generar las recomendaciones en función de los resultados obtenidos
+    :param punt: puntuaciones para todas las categorías
+    :param sent_df: DataFrame con las frases con categorías y análisis de sentimiento
+    :return: rec_lst([]): lista de todas las recomendaciones generadas
+    '''
 
     rec_lst = []
 
@@ -517,11 +576,22 @@ def recommendations(punt, sent_df):
 
 # 8) DB INSERTION ======================================================================================================
 
-def db_insertion(restaurant_name, sent_df, sum_pos, sum_neg, wc_df, punt_general, punt, rec_lst):
+def db_insertion(restaurant_name, sent_df, sum_pos, sum_neg, wc_df, punt_general, punt, rec_lst, MONGODB_URI):
+    '''
+    Función para la inserción en la base de datos
+    :param restaurant_name: nombre del restaurante
+    :param sent_df: DataFrame con las frases con categorías y análisis de sentimiento
+    :param sum_pos: resumen de reseñas positivas
+    :param sum_neg: resumen de reseñas negativas
+    :param wc_df([]): strings correspondientes a los wordclouds
+    :param punt_general(int): puntuación media
+    :param punt: DataFrame con las puntuaciones por categoría
+    :param rec_lst: recomendaciones
+    :return: -
+    '''
 
     # Conexión a la base de datos
-    con = pymongo.MongoClient(
-        'mongodb+srv://rcolmenasantos:n5yLiYyW5ptGqM5Y@fivestarfeedbackcluster.naxicsk.mongodb.net/FiveStarFeedback')
+    con = pymongo.MongoClient(MONGODB_URI)
 
     # Selección de la base de datos
     db = con.FiveStarFeedback
@@ -529,6 +599,7 @@ def db_insertion(restaurant_name, sent_df, sum_pos, sum_neg, wc_df, punt_general
     # Selección de la colección
     restaurant = db.Restaurants
 
+    restaurant_name = restaurant_name.lower().replace(' ', '_')
     df = [sent_df[['Date', 'Review', 'Origin', 'Category', 'Sentiment']].to_dict('records')]
     df2 = [wc_df.to_dict('records')]
     df3 = [punt.to_dict('records')]
@@ -548,17 +619,25 @@ def db_insertion(restaurant_name, sent_df, sum_pos, sum_neg, wc_df, punt_general
 
 # MAIN =================================================================================================================
 
-def data_processing(restaurant_name):
+def data_processing(restaurant_name, MONGODB_URI):
+    '''
+    Función principal de la aplicación. Llama a todas las funciones de este mismo Script.
+    :param restaurant_name: nombre del restaurante
+    :param MONGODB_URI: connection string para la base de datos
+    :return: -
+    '''
 
     # SCRAPER
     try:
         reviews_t_df = reviewScraperTripAdvisor(restaurant_name)
     except:
+        # Si no se encuentran resultados en TripAdvisor, se devuelve un DataFrame vacío
         reviews_t_df = pd.DataFrame(columns=['Date', 'Review', 'Origin', 'Restaurant'])
 
     try:
         reviews_g_df = reviewScraperGoogle(restaurant_name)
     except:
+        # Si no se encuentran resultados en Google Maps, se devuelve un DataFrame vacío
         reviews_g_df = pd.DataFrame(columns=['Date', 'Review', 'Origin', 'Restaurant'])
 
     # CLEANER AND TOKENIZER
@@ -577,6 +656,7 @@ def data_processing(restaurant_name):
         # SENTIMENT BY CATEGORY
         punt = round(sent_df.groupby('Category')['Sentiment'].mean(), 1)
 
+        # En caso de que no se encuentre alguna de las categorías, se asigna una puntuación neutra de 3
         if ('Comida' not in sent_df['Category'].values):
             punt = pd.concat([punt, (pd.DataFrame({'Category': 'Comida', 'Sentiment': 3.0}, index=[0]))])
         if ('Servicio' not in sent_df['Category'].values):
@@ -592,8 +672,8 @@ def data_processing(restaurant_name):
         punt_general = round(punt['Sentiment'].mean(), 1)
 
         # SUMMARIZER
-        pos_df = sent_df[sent_df['Sentiment'].isin([4, 5])]
-        neg_df = sent_df[sent_df['Sentiment'].isin([1, 2])]
+        pos_df = sent_df[sent_df['Sentiment'].isin([4, 5])] # resumen positivo
+        neg_df = sent_df[sent_df['Sentiment'].isin([1, 2])] # resumen negativo
         sum_pos = summarize(pos_df)
         sum_neg = summarize(neg_df)
 
@@ -607,7 +687,7 @@ def data_processing(restaurant_name):
         rec_lst = recommendations(punt, sent_df)
 
         # DB INSERTION
-        db_insertion(restaurant_name, sent_df, sum_pos, sum_neg, wc_df, punt_general, punt, rec_lst)
+        db_insertion(restaurant_name, sent_df, sum_pos, sum_neg, wc_df, punt_general, punt, rec_lst, MONGODB_URI)
 
     else:
         print('No se han obtenido datos del restaurante introducido.')

@@ -1,3 +1,6 @@
+# Script de Python para realizar un análisis entre las distintas alternativas para el sentiment analysis
+# Se compara la construcción a mano de un modelo SVM y el uso del transformer BERT BASE MULTILINGUAL
+
 import pandas as pd
 import numpy as np
 import re

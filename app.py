@@ -1,3 +1,7 @@
+# Script de Python que genera la app web de Flask mediante llamadas a la base de datos y la ejecución de la función
+# data_processing.
+
+# Importación de librerías y dependencias
 from flask import Flask, render_template, request
 from pymongo import MongoClient
 import pandas as pd
@@ -5,48 +9,61 @@ import base64
 from datetime import datetime, timedelta
 import re
 from back.main import data_processing
-
+import os
 import warnings
 warnings.filterwarnings("ignore")
 
-con = MongoClient('mongodb+srv://rcolmenasantos:n5yLiYyW5ptGqM5Y@fivestarfeedbackcluster.naxicsk.mongodb.net/FiveStarFeedback')
+# Conexión a la DB
+MONGODB_URI = os.environ['MONGODB_URI']
+con = MongoClient(MONGODB_URI)
 db = con.FiveStarFeedback
 restaurant = db.Restaurants
 
+# Creación de la app de Flask
 app = Flask(__name__)
 
-
+# Ruta para la página de búsqueda
 @app.route('/')
 def busqueda():
     return render_template("busqueda.html")
 
 
+# Ruta para la página de resultados
 @app.route('/results', methods=['GET'])
 def mostrarResultados():
 
+    # Se obtiene el nombre del restaurante introducido por el usuario a través del método GET
     nombre_restaurante = request.values.get('nombre_restaurante')
+    nombre_restaurante_query = nombre_restaurante.lower().replace(' ', '_')
 
-    query = {'nombre_restaurante': nombre_restaurante}
+    # Consulta a partir del nombre del restaurante
+    query = {'nombre_restaurante': nombre_restaurante_query}
     cursor = restaurant.find(query)
     data = pd.DataFrame(list(cursor))
 
+    # Si no existe el restaurante en la base de datos, se llama a la función principal
     if len(data) == 0:
-        data_processing(nombre_restaurante)
+        data_processing(nombre_restaurante, MONGODB_URI)
     else:
+        # Si existe el restaurante en la base de datos pero los datos son antiguos, se llama a la función principal
         fecha = data['fecha'][0]
         fecha = datetime.strptime(fecha, '%d-%m-%Y')
         if fecha < (datetime.today() - timedelta(days=90)):
-            data_processing(nombre_restaurante)
+            data_processing(nombre_restaurante, MONGODB_URI)
 
-    query = {'nombre_restaurante': nombre_restaurante}
+    # Se realiza de nuevo la consulta tras haber insertado los nuevos datos
+    query = {'nombre_restaurante': nombre_restaurante_query}
     cursor = restaurant.find(query)
     data = pd.DataFrame(list(cursor))
 
+    # Si no se encuentran datos para el restaurante buscado, se muestra el html noresults.html
     if len(data) == 0:
         return render_template("noresults.html", nombre_restaurante=nombre_restaurante)
     else:
+        # Si se encuentran datos, se almacenan en variables para posteriormente pasarlas a la plantilla de html
         # DB Data
         nombre_restaurante = data['nombre_restaurante'][0]
+        nombre_restaurante = nombre_restaurante.title().replace('_', ' ')
         resumen_positivo = data['resumen_positivo'][0]
         resumen_negativo = data['resumen_negativo'][0]
         puntuacion = data['sentimiento'][0]
@@ -55,39 +72,32 @@ def mostrarResultados():
         punt_limpieza = data['sentimiento_categoria'][0][2]['Sentiment']
         punt_precio = data['sentimiento_categoria'][0][3]['Sentiment']
         punt_servicio = data['sentimiento_categoria'][0][4]['Sentiment']
-
         wc = pd.DataFrame(data['wordclouds'][0])
-
         try:
             wc_comida = wc[wc['Category'] == 'Comida']['Plot'].values[0].decode('utf-8')
         except:
             with open("static/images/nwc_comida.png", "rb") as imageFile:
                 wc_comida = base64.b64encode(imageFile.read()).decode('utf-8')
-
         try:
             wc_precio = wc[wc['Category'] == 'Precio']['Plot'].values[0].decode('utf-8')
         except:
             with open("static/images/nwc_precio.png", "rb") as imageFile:
                 wc_precio = base64.b64encode(imageFile.read()).decode('utf-8')
-
         try:
             wc_servicio = wc[wc['Category'] == 'Servicio']['Plot'].values[0].decode('utf-8')
         except:
             with open("static/images/nwc_servicio.png", "rb") as imageFile:
                 wc_servicio = base64.b64encode(imageFile.read()).decode('utf-8')
-
         try:
             wc_limpieza = wc[wc['Category'] == 'Limpieza']['Plot'].values[0].decode('utf-8')
         except:
             with open("static/images/nwc_limpieza.png", "rb") as imageFile:
                 wc_limpieza = base64.b64encode(imageFile.read()).decode('utf-8')
-
         try:
             wc_ambiente = wc[wc['Category'] == 'Ambiente']['Plot'].values[0].decode('utf-8')
         except:
             with open("static/images/nwc_ambiente.png", "rb") as imageFile:
                 wc_ambiente = base64.b64encode(imageFile.read()).decode('utf-8')
-
         rec0 = data['recomendaciones'][0][0]['Recomendación']
         rec1 = data['recomendaciones'][0][1]['Recomendación']
         rec2 = data['recomendaciones'][0][2]['Recomendación']
@@ -112,7 +122,7 @@ def mostrarResultados():
 
 if __name__ == '__main__':
 
-    # Función de limpieza para el texto
+    # Función de limpieza para el texto necesaria para el modelo de clasificación
     def limpiar_tokenizar(texto):
         # Se convierte el texto a minúsculas
         nuevo_texto = texto.lower()
@@ -132,4 +142,5 @@ if __name__ == '__main__':
 
         return nuevo_texto
 
+    # Ejecución de la app
     app.run()
