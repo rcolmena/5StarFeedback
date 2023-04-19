@@ -40,7 +40,7 @@ def reviewScraperTripAdvisor(restaurant_name):
     num_page = 15
 
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
+    options.add_argument("--headless")
 
     driver = webdriver.Chrome(options=options)
     driver.get(url_ta)
