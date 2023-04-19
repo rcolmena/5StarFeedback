@@ -8,7 +8,7 @@ import pandas as pd
 import base64
 from datetime import datetime, timedelta
 import re
-from back.app import data_processing
+from back.main import data_processing
 import os
 import warnings
 warnings.filterwarnings("ignore")
