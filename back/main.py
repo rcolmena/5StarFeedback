@@ -6,6 +6,7 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
+import random
 import nltk
 import re
 import pickle
@@ -39,20 +40,19 @@ def reviewScraperTripAdvisor(restaurant_name):
     num_page = 15
 
     options = webdriver.ChromeOptions()
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    options.add_argument('--headless')
+    # options.add_argument("--headless")
 
     driver = webdriver.Chrome(options=options)
     driver.get(url_ta)
 
     # Espera hasta que se abra el botón de las cookies
-    time.sleep(5)
+    time.sleep(random.uniform(5.0, 7.0))
 
     # Click en el botón de las cookies
     driver.find_element(by=By.XPATH,
                         value='/html/body/div[10]/div[2]/div/div[2]/div[1]/div/div[2]/div/div[1]/button').click()
 
-    time.sleep(1)
+    time.sleep(random.uniform(1.0, 2.0))
 
     # Encuentra la barra de búsqueda
     item = driver.find_element(By.XPATH,
@@ -61,12 +61,12 @@ def reviewScraperTripAdvisor(restaurant_name):
     # Realiza la búsqueda con el nombre del restaurante
     item.send_keys(restaurant_name)
 
-    time.sleep(3)
+    time.sleep(random.uniform(2.0, 3.0))
 
     search = driver.find_element(By.XPATH,
                                  '/html/body/div[2]/div/div[1]/div/div/div/div/div/div[2]/div/div/div/form/div/a[1]')
 
-    time.sleep(2)
+    time.sleep(random.uniform(2.0, 3.0))
 
     # Se obtiene el link del restaurante en concreto tras realizar la búsqueda
     link = search.get_attribute('href')
@@ -82,10 +82,13 @@ def reviewScraperTripAdvisor(restaurant_name):
 
     while nextPage and (contador < num_page):
 
-        time.sleep(5)  # Espera a que se carguen las reseñas
+        time.sleep(random.uniform(5.0, 7.0))  # Espera a que se carguen las reseñas
 
         reviews = driver.find_elements(by=By.XPATH, value="//div[@class='ui_column is-9']")
         num_page_items = min(len(reviews), 10)
+
+        if num_page_items < 10:
+            break
 
         # Bucle por las reseñas encontradas
         for i in range(num_page_items):
@@ -106,14 +109,15 @@ def reviewScraperTripAdvisor(restaurant_name):
             lst.append(data)
 
         try:
+            # Para la primera página
             nextButton = driver.find_element(by=By.XPATH,
                                              value='//*[@id="taplc_location_reviews_list_resp_rr_resp_0"]/div/div[13]/div/div/a[2]')
             nextButton.click()
             contador = contador + 1
 
         except:
-
             try:
+                # Para el resto de páginas
                 nextButton = driver.find_element(by=By.XPATH,
                                                  value='//*[@id="taplc_location_reviews_list_resp_rr_resp_0"]/div/div[12]/div/div/a[2]')
                 nextButton.click()
@@ -147,7 +151,7 @@ def reviewScraperGoogle(restaurant_name):
     driver = webdriver.Chrome(options=options)
 
     driver.get(url_g)
-    time.sleep(5)
+    time.sleep(random.uniform(5.0, 7.0))
 
     # Click en el botón de las cookies
     driver.find_element(by=By.XPATH,
@@ -165,19 +169,19 @@ def reviewScraperGoogle(restaurant_name):
     # Click en la lupa para buscar el nombre del restaurante
     driver.find_element(By.XPATH, '//*[@id="searchbox-searchbutton"]').click()
 
-    time.sleep(5)
+    time.sleep(random.uniform(5.0, 7.0))
 
     # Click para ver todas las reseñas
     driver.find_element(By.XPATH,
                         '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[3]/div/div/button[2]').click()
 
-    time.sleep(5)
+    time.sleep(random.uniform(5.0, 7.0))
 
     # Click en el botón de ordenar
     driver.find_element(By.XPATH,
                         '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[3]/div[8]/div[2]/button').click()
 
-    time.sleep(2)
+    time.sleep(random.uniform(2.0, 3.0))
 
     # Cuatro categorías: Más útiles [1], Más recientes [2], Valoración más alta [3], Valoración más baja [4]
     driver.find_element(By.XPATH, '//*[@id="action-menu"]/div[1]').click()
@@ -222,7 +226,7 @@ def reviewScraperGoogle(restaurant_name):
     for m in button:
         if m.text == "Más":
             m.click()
-    time.sleep(5)
+    time.sleep(random.uniform(5.0, 7.0))
 
     date = driver.find_elements(By.CLASS_NAME, 'rsqaWe')
     review = driver.find_elements(By.CLASS_NAME, 'wiI7pd')
