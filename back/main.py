@@ -498,29 +498,29 @@ def recommendations(punt, sent_df):
     else:
         rec_lst.append('Los clientes no están satisfechos con la comida.')
 
-    if (len(sent_df.loc[sent_df['Review'].str.contains("entrantes")]) != 0) &\
-            (sent_df.loc[sent_df['Review'].str.contains("entrantes"), 'Sentiment'].mean() >= 3.5):
+    if (len(sent_df.loc[sent_df['Review'].str.contains("entrantes|entradas")]) != 0) &\
+            (sent_df.loc[sent_df['Review'].str.contains("entrantes|entradas"), 'Sentiment'].mean() >= 3.5):
         rec_lst.append('No modificar los entrantes.')
-    elif(len(sent_df.loc[sent_df['Review'].str.contains("entrantes")]) != 0) &\
-            (sent_df.loc[sent_df['Review'].str.contains("entrantes"), 'Sentiment'].mean() < 3.5):
+    elif(len(sent_df.loc[sent_df['Review'].str.contains("entrantes|entradas")]) != 0) &\
+            (sent_df.loc[sent_df['Review'].str.contains("entrantes|entradas"), 'Sentiment'].mean() < 3.5):
         rec_lst.append('Cambiar o mejorar los entrantes.')
-    elif(len(sent_df.loc[sent_df['Review'].str.contains("entrantes")]) == 0):
+    elif(len(sent_df.loc[sent_df['Review'].str.contains("entrantes|entradas")]) == 0):
         rec_lst.append('Los clientes no han opinado acerca de los entrantes.')
 
-    if (len(sent_df.loc[sent_df['Review'].str.contains("carne")]) != 0) &\
-            (sent_df.loc[sent_df['Review'].str.contains("carne"), 'Sentiment'].mean() >= 3.5):
+    if (len(sent_df.loc[sent_df['Review'].str.contains("carne|carnes")]) != 0) &\
+            (sent_df.loc[sent_df['Review'].str.contains("carne|carnes"), 'Sentiment'].mean() >= 3.5):
         rec_lst.append('La carne le gusta a los clientes.')
-    elif (len(sent_df.loc[sent_df['Review'].str.contains("carne")]) != 0) & \
-            (sent_df.loc[sent_df['Review'].str.contains("carne"), 'Sentiment'].mean() < 3.5):
+    elif (len(sent_df.loc[sent_df['Review'].str.contains("carne|carnes")]) != 0) & \
+            (sent_df.loc[sent_df['Review'].str.contains("carne|carnes"), 'Sentiment'].mean() < 3.5):
         rec_lst.append('Cambiar o mejorar la carne.')
-    elif (len(sent_df.loc[sent_df['Review'].str.contains("carne")]) == 0):
+    elif (len(sent_df.loc[sent_df['Review'].str.contains("carne|carnes")]) == 0):
         rec_lst.append('Los clientes no han opinado acerca de la carne')
 
-    if (len(sent_df.loc[sent_df['Review'].str.contains("pescado")]) != 0) & \
-            (sent_df.loc[sent_df['Review'].str.contains("pescado"), 'Sentiment'].mean() >= 3.5):
+    if (len(sent_df.loc[sent_df['Review'].str.contains("pescado|pescados")]) != 0) & \
+            (sent_df.loc[sent_df['Review'].str.contains("pescado|pescados"), 'Sentiment'].mean() >= 3.5):
         rec_lst.append('El pescado le gusta a los clientes.')
-    elif (len(sent_df.loc[sent_df['Review'].str.contains("pescado")]) != 0) & \
-            (sent_df.loc[sent_df['Review'].str.contains("pescado"), 'Sentiment'].mean() < 3.5):
+    elif (len(sent_df.loc[sent_df['Review'].str.contains("pescado|pescados")]) != 0) & \
+            (sent_df.loc[sent_df['Review'].str.contains("pescado|pescados"), 'Sentiment'].mean() < 3.5):
         rec_lst.append('Cambiar o mejorar el pescado.')
     elif (len(sent_df.loc[sent_df['Review'].str.contains("pescado")]) == 0):
         rec_lst.append('Los clientes no han opinado acerca de el pescado.')

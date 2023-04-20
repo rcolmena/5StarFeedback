@@ -13,7 +13,7 @@ import pickle
 
 # CATEGORY CLASSIFIER (MODELS) =========================================================================
 
-df = pd.read_csv('reviews_classifier.csv', header=0, index_col=0)
+df = pd.read_csv('reviews_classifier_v2.csv', header=0, index_col=0)
 df = df.reset_index(drop=True)
 
 # División de los datos en entrenamiento y test
@@ -51,9 +51,9 @@ stop_words = list(stopwords.words('spanish'))
 
 # Matriz TF-IDF
 tfidf_vectorizador = TfidfVectorizer(
-                        tokenizer  = limpiar_tokenizar,
-                        min_df     = 3,
-                        stop_words = stop_words
+                        tokenizer=limpiar_tokenizar,
+                        min_df=3,
+                        stop_words=stop_words
                     )
 tfidf_vectorizador.fit(X_train)
 
@@ -61,30 +61,30 @@ tfidf_train = tfidf_vectorizador.transform(X_train)
 tfidf_test  = tfidf_vectorizador.transform(X_test)
 
 # Entrenamiento del modelo SVM
-modelo_svm_lineal = svm.SVC(kernel = "linear", C = 1.0)
-modelo_svm_lineal.fit(X = tfidf_train, y = y_train)
+modelo_svm_lineal = svm.SVC(kernel="linear", C=1.0)
+modelo_svm_lineal.fit(X=tfidf_train, y=y_train)
 
 # Construcción del grid
 param_grid = {'C': np.logspace(-5, 3, 10)}
 
 # Validación cruzada
 grid = GridSearchCV(
-        estimator  = svm.SVC(kernel= "linear"),
-        param_grid = param_grid,
-        scoring    = 'accuracy',
-        n_jobs     = -1,
-        cv         = 5, 
-        verbose    = 0,
-        return_train_score = True
+        estimator=svm.SVC(kernel="linear"),
+        param_grid=param_grid,
+        scoring='accuracy',
+        n_jobs=-1,
+        cv=5,
+        verbose=0,
+        return_train_score=True
       )
 
 _ = grid.fit(X = tfidf_train, y = y_train)
 
 # Resultados del grid
 resultados = pd.DataFrame(grid.cv_results_)
-resultados.filter(regex = '(param.*|mean_t|std_t)')\
-    .drop(columns = 'params')\
-    .sort_values('mean_test_score', ascending = False)
+resultados.filter(regex='(param.*|mean_t|std_t)')\
+    .drop(columns='params')\
+    .sort_values('mean_test_score', ascending=False)
 
 # Mejores hiperparámetros encontrados por validación cruzada
 print("Mejores hiperparámetros encontrados (cv):")
@@ -103,8 +103,8 @@ print(f"% de error: {100*(y_test != predicciones_test).mean()}")
 print("Matriz de confusión")
 print("-------------------")
 print(pd.DataFrame(confusion_matrix(y_true=y_test, y_pred=predicciones_test),
-             columns = ['comida', 'precio', 'servicio', 'ambiente', 'limpieza'],
-             index = ['comida', 'precio', 'servicio', 'ambiente', 'limpieza']))
+             columns=['comida', 'precio', 'servicio', 'ambiente', 'limpieza'],
+             index=['comida', 'precio', 'servicio', 'ambiente', 'limpieza']))
 
 # Se guarda la matriz tf-idf
 tfidfFile = "tfidf.pkl"
