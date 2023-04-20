@@ -25,7 +25,7 @@
         <h8><b> ¿Deseas conocer la opinión de tus clientes? </b></h8>
 
         <form action="{{ url_for('mostrarResultados') }}" method="GET">
-          <input type="text" placeholder="Introduce el nombre de tu restaurante" name="nombre_restaurante" required="">
+          <input type="text" autocomplete="off" placeholder="Introduce el nombre de tu restaurante" name="nombre_restaurante" required="">
             <button onclick="showDiv()"> Go! </button>
         </form>
 
