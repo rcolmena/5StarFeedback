@@ -657,7 +657,7 @@ def data_processing(restaurant_name, MONGODB_URI):
 
         # SENTIMENT BY CATEGORY
         punt = round(sent_df.groupby('Category')['Sentiment'].mean(), 1)
-
+        punt = punt.reset_index()
         # En caso de que no se encuentre alguna de las categorías, se asigna una puntuación neutra de 3
         if ('Comida' not in sent_df['Category'].values):
             punt = pd.concat([punt, (pd.DataFrame({'Category': 'Comida', 'Sentiment': 3.0}, index=[0]))])
@@ -682,7 +682,7 @@ def data_processing(restaurant_name, MONGODB_URI):
         sum_neg = summarize(neg_df)
 
         # WORDCLOUD
-        cat = sent_df.groupby('Category').filter(lambda x: len(x) > 5)
+        cat = sent_df.groupby('Category').filter(lambda x: len(x) > 3)
         cat = cat.groupby('Category')
         wc_df = cat.apply(wordcloud).reset_index()
         wc_df.columns = ['Category', 'Plot']
