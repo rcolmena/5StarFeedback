@@ -212,7 +212,7 @@ def reviewScraperGoogle(restaurant_name):
         ele = driver.find_element(By.XPATH, '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[3]')
         new_height = driver.execute_script("return arguments[0].scrollHeight", ele)
 
-        if number == 10:
+        if number == 5:
             break
         if new_height == last_height:
             break

@@ -13,7 +13,7 @@ import pickle
 
 # CATEGORY CLASSIFIER (MODELS) =========================================================================
 
-df = pd.read_csv('reviews_classifier_v2.csv', header=0, index_col=0)
+df = pd.read_csv('reviews_classifier_v3.csv', header=0, index_col=0)
 df = df.reset_index(drop=True)
 
 # División de los datos en entrenamiento y test
@@ -93,7 +93,7 @@ print(grid.best_params_, ":", grid.best_score_, grid.scoring)
 modelo_final = grid.best_estimator_
 
 # Evaluación
-predicciones_test = modelo_final.predict(X = tfidf_test)
+predicciones_test = modelo_final.predict(X=tfidf_test)
 
 print("Error de test")
 print(f"Número de clasificaciones erróneas de un total de {tfidf_test.shape[0]} " \
