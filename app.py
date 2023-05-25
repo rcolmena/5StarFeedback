@@ -15,7 +15,8 @@ warnings.filterwarnings("ignore")
 
 # Conexión a la DB
 # MONGODB_URI = os.environ['MONGODB_URI']
-MONGODB_URI = 'mongodb+srv://rcolmenasantos:n5yLiYyW5ptGqM5Y@fivestarfeedbackcluster.naxicsk.mongodb.net/FiveStarFeedback'
+# Para la ejecución del código se requiere el string de conexión a la base de datos, no incluido en este código por motivos de seguridad de los datos
+MONGODB_URI = ''
 con = MongoClient(MONGODB_URI)
 db = con.FiveStarFeedback
 restaurant = db.Restaurants
